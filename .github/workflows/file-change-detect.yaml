@@ -1,0 +1,40 @@
+name: detect changes files
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-files: ${{ steps.changes.outputs.files }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: detect changes files
+        id: changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^docs/' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changes in docs/"
+            echo "files=[]" >> $GITHUB_OUTPUT
+          else
+            FILES_JSON=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')
+            echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+          fi
+
+  echo-changes:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.changed-files != '[]'
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.detect-changes.outputs.changed-files) }}
+    steps:
+      - name: echo changed file
+        run: echo "Changed file: ${{ matrix.file }}"
