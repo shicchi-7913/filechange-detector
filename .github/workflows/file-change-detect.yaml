@@ -37,4 +37,5 @@ jobs:
         file: ${{ fromJson(needs.detect-changes.outputs.changed-files) }}
     steps:
       - name: echo changed file
-        run: echo "Changed file: ${{ matrix.file }}"
+        run: |
+          echo "Changed file: ${{ matrix.file }}"
