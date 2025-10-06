@@ -1,5 +1,8 @@
 name: detect changes files
 
+env:
+  DOCS_DIR: docs/
+
 on:
   push:
     branches:
@@ -21,7 +24,7 @@ jobs:
         id: changes
         run: |
           set -euo pipefail
-          CHANGED_FILES=$(git diff --name-only ${{ github.sha }}^1 ${{ github.sha }} -- docs/)
+          CHANGED_FILES=$(git diff --name-only ${{ github.sha }}^1 ${{ github.sha }} -- "$DOCS_DIR")
 
           echo "Changed files: $CHANGED_FILES"
 
@@ -43,4 +46,6 @@ jobs:
     steps:
       - name: echo changed file
         run: |
-          echo "Changed file: ${{ matrix.file }}"
+          file='${{ matrix.file }}'
+          file="${file#"$DOCS_DIR"}"
+          echo "Changed file: ${file}"
