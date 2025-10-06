@@ -16,20 +16,21 @@ jobs:
       - name: checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 1
+          fetch-depth: 2
       - name: detect changes files
         id: changes
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- docs/)
+          set -euo pipefail
+          CHANGED_FILES=$(git diff --name-only ${{ github.sha }}^1 ${{ github.sha }} -- docs/)
 
           echo "Changed files: $CHANGED_FILES"
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "No changes in docs/"
-            echo "files=[]" >> $GITHUB_OUTPUT
+            echo "files=[]" >> "$GITHUB_OUTPUT"
           else
-            FILES_JSON=$(echo "$CHANGED_FILES" | jq -R -s -c 'split("\n")[:-1]')
-            echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+            FILES_JSON=$(printf "%s\n" "$CHANGED_FILES" | jq -R -s -c 'split("\n") | map(select(length>0))')
+            echo "files=$FILES_JSON" >> "$GITHUB_OUTPUT"
           fi
 
   echo-changes:
