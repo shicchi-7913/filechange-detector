@@ -20,7 +20,7 @@ jobs:
       - name: detect changes files
         id: changes
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- docs/ || true)
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- docs/)
 
           echo "Changed files: $CHANGED_FILES"
 
