@@ -15,10 +15,14 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
       - name: detect changes files
         id: changes
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^docs/' || true)
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- docs/ || true)
+
+          echo "Changed files: $CHANGED_FILES"
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "No changes in docs/"
